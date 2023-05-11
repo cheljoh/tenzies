@@ -1,45 +1,45 @@
-import Confetti from 'react-confetti';
-import React from 'react';
-import {nanoid} from 'nanoid';
-import Dice from './components/Dice'
+// import Confetti from 'react-confetti';
+import { useState, useEffect } from 'react';
+import Dice from './components/Dice';
 import './App.css';
 
 interface Die {
-  id: string,
+  id: number,
   isHeld: boolean,
   number: number
 }
 
 function App() {
 
-  const [dice, setDice] = React.useState(newDice())
+  const [dice, setDice] = useState(newDice())
 
-  const [tenzies, setTenzies] = React.useState(false)
+  const [tenzies, setTenzies] = useState(false)
 
-  React.useEffect(() =>{
+  useEffect(() =>{
     const firstNumber = dice[0].number
-    const isGameWon = dice.every(die => die.isHeld && die.number == firstNumber)
+    const isGameWon = dice.every(die => die.isHeld && die.number === firstNumber)
     if (isGameWon) {
-      console.log('setting tenzies')
       setTenzies(true)
+    } else {
+      setTenzies(false)
     }
 
   }, [dice])
 
   const dieElements = dice.map(die => 
-    <Dice key={die.id} isHeld={die.isHeld} value={die.number} holdDice={() => holdDice(die.id)}/>
+    <Dice id={die.id} key={die.id} isHeld={die.isHeld} value={die.number} holdDice={() => holdDice(die.id)}/>
   )
 
-  function newDie(): Die {
+  function newDie(index: number): Die {
     return {
-      id: nanoid(),
+      id: index,
       isHeld: false,
       number: Math.ceil(Math.random() * 6)
     }
   }
 
   function newDice() {
-    return [...Array(10)].map(() => newDie())
+    return [...Array(10)].map((_, index) => newDie(index))
   }
 
   function rollDice() {
@@ -47,11 +47,11 @@ function App() {
       setDice(newDice())
     } else {
       setTenzies(false)
-      setDice(prevDice => prevDice.map(die => die.isHeld ? die : newDie()))
+      setDice(prevDice => prevDice.map((die: Die, index: number) => die.isHeld ? die : newDie(index)))
     }
   }
 
-  function holdDice(id: string) {
+  function holdDice(id: number) {
     setDice(prevDice => {
       return prevDice.map(die => die.id === id ? {...die, isHeld: !die.isHeld} : die)
     })
@@ -59,7 +59,7 @@ function App() {
 
 
   return (
-    <main className="box">
+    <main>
       <h1>Tenzies!</h1>
       <p>Roll until all dice are the same! Click a die to hold its value.</p>
       <div className="dice">
@@ -67,7 +67,7 @@ function App() {
       </div>
 
       <button className="roll-button" onClick={rollDice}>{tenzies ? 'New Game?' : 'Roll'}</button>
-      {tenzies && <Confetti />}
+      {/* {tenzies && <Confetti /> */}
     </main>
   )
 }
